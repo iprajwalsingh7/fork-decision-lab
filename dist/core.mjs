@@ -39,7 +39,7 @@ export function validateImport(input) {
     if(typeof d.title!=='string'||!d.title.trim()||!Array.isArray(d.criteria)||d.criteria.length<1||d.criteria.length>8||!Array.isArray(d.options)||d.options.length<2||d.options.length>5)throw new Error('This backup contains an invalid decision.');
     const ids=new Set();
     const criteria=d.criteria.map(c=>{
-      if(typeof c.id!=='string'||ids.has(c.id)||typeof c.name!=='string'||!c.name.trim())throw new Error('Invalid criteria in backup.');
+      if(typeof c.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(c.id)||ids.has(c.id)||typeof c.name!=='string'||!c.name.trim())throw new Error('Invalid criteria in backup.');
       ids.add(c.id);return{id:c.id,name:c.name.slice(0,60),weight:clamp(c.weight,0,100),must:!!c.must};
     });
     return{id:uid(),title:d.title.trim().slice(0,100),note:String(d.note||'').slice(0,300),createdAt:d.createdAt||new Date().toISOString(),criteria,options:d.options.map(o=>({id:uid(),name:String(o.name||'Option').slice(0,60),note:String(o.note||'').slice(0,150),scores:Object.fromEntries(criteria.map(c=>[c.id,clamp(o.scores?.[c.id])]))}))};
